@@ -1,20 +1,32 @@
-﻿// TODO: подключить библиотеку для работы с WAV-файлами
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MusicMixerApp
 {
     public class Mixer
     {
-        public string Mix(string path1, string path2)
+        public string MixTracks(List<string> inputFilePaths)
         {
-            // TODO: проверить существование обоих файлов
-            if (!File.Exists(path1) || !File.Exists(path2))
-                throw new FileNotFoundException();
+            // TODO: в будущем — тут будет реальное смешивание аудио
 
-            // TODO: считать содержимое файлов
-            // TODO: объединить звуковые дорожки
-            // TODO: сохранить в новый файл и вернуть путь
+            // Проверка входных данных
+            if (inputFilePaths == null || inputFilePaths.Count == 0)
+                throw new ArgumentException("Список входных файлов пуст.");
 
-            return "combined.wav"; // временная реализация
+            foreach (var file in inputFilePaths)
+            {
+                if (!File.Exists(file))
+                    throw new FileNotFoundException($"Файл не найден: {file}");
+            }
+
+            // Эмуляция работы
+            string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "mix_stub.wav");
+
+            // Заглушка — создаем пустой файл
+            File.WriteAllText(outputPath, "Эмуляция микса."); // можно заменить на byte[] позже
+
+            return outputPath;
         }
     }
 }
