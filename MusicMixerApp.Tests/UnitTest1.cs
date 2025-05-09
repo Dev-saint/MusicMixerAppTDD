@@ -16,7 +16,7 @@ namespace MusicMixerApp.Tests
             var mixer = new Mixer();
             var tempFiles = new List<string>();
 
-            // Создаём два временных WAV-файла по 1 секунде тишины
+            // Создаём два временных WAV-файла по 10 секунд тишины
             for (int i = 0; i < 2; i++)
             {
                 string path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.wav");
@@ -40,13 +40,14 @@ namespace MusicMixerApp.Tests
         }
 
         // Вспомогательный метод
-        private void CreateSilentWav(string path)
+        private void CreateSilentWav(string path, int durationInSeconds = 10)
         {
             var waveFormat = new WaveFormat(44100, 16, 1); // Mono
             using (var writer = new WaveFileWriter(path, waveFormat))
             {
-                byte[] silence = new byte[44100 * 2]; // 1 секунда тишины (16 бит = 2 байта)
-                writer.Write(silence, 0, silence.Length);
+                int sampleCount = 44100 * durationInSeconds; // Количество сэмплов на заданную длительность
+                short[] silence = new short[sampleCount]; // Массив с тишиной (в 16-битном формате)
+                writer.WriteSamples(silence, 0, silence.Length); // Запись тишины
             }
         }
 
