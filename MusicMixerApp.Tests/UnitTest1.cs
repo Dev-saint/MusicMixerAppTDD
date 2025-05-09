@@ -14,26 +14,40 @@ namespace MusicMixerApp.Tests
         {
             // Arrange
             var mixer = new Mixer();
-
             var tempFiles = new List<string>();
+
+            // Создаём два временных WAV-файла по 1 секунде тишины
             for (int i = 0; i < 2; i++)
             {
-                string path = Path.GetTempFileName();
-                File.WriteAllText(path, $"Файл {i}");
+                string path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.wav");
+                CreateSilentWav(path);
                 tempFiles.Add(path);
             }
 
             // Act
-            var output = mixer.MixTracks(tempFiles);
+            string result = mixer.MixTracks(tempFiles);
 
             // Assert
-            Assert.True(File.Exists(output));
-            Assert.Contains("mix_stub.wav", Path.GetFileName(output));
+            Assert.True(File.Exists(result), "Ожидали, что файл-микс будет создан");
+            Assert.EndsWith(".wav", result, StringComparison.OrdinalIgnoreCase);
+
+            var fileInfo = new FileInfo(result);
+            Assert.True(fileInfo.Length > 44, "WAV-файл не должен быть пустым (заголовок 44 байта)");
 
             // Cleanup
-            foreach (var file in tempFiles)
-                File.Delete(file);
-            File.Delete(output);
+            foreach (var f in tempFiles) File.Delete(f);
+            File.Delete(result);
+        }
+
+        // Вспомогательный метод
+        private void CreateSilentWav(string path)
+        {
+            var waveFormat = new WaveFormat(44100, 16, 1); // Mono
+            using (var writer = new WaveFileWriter(path, waveFormat))
+            {
+                byte[] silence = new byte[44100 * 2]; // 1 секунда тишины (16 бит = 2 байта)
+                writer.Write(silence, 0, silence.Length);
+            }
         }
 
         [Fact]
@@ -55,37 +69,6 @@ namespace MusicMixerApp.Tests
 
             // Act + Assert
             Assert.Throws<FileNotFoundException>(() => mixer.MixTracks(files));
-        }
-
-        [Fact]
-        public void MixTracks_ReturnsOutputFilePath_WhenValidFiles()
-        {
-            // arrange
-            var mixer = new Mixer();
-
-            var tempFile1 = Path.Combine(Path.GetTempPath(), "test1.wav");
-            var tempFile2 = Path.Combine(Path.GetTempPath(), "test2.wav");
-
-            // Создаем dummy-файлы с тишиной
-            CreateSilentWav(tempFile1);
-            CreateSilentWav(tempFile2);
-
-            // act
-            var result = mixer.MixTracks(new List<string> { tempFile1, tempFile2 });
-
-            // assert
-            Assert.True(File.Exists(result));
-        }
-
-        // Вспомогательный метод
-        private void CreateSilentWav(string path)
-        {
-            var waveFormat = new WaveFormat(44100, 16, 1); // Mono
-            using (var writer = new WaveFileWriter(path, waveFormat))
-            {
-                byte[] silence = new byte[44100 * 2]; // 1 секунда тишины (16 бит = 2 байта)
-                writer.Write(silence, 0, silence.Length);
-            }
         }
     }
 }
