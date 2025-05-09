@@ -6,12 +6,15 @@ namespace MusicMixerApp
     {
         public string Mix(string path1, string path2)
         {
-            // TODO: реализовать проверку существования файлов
+            // TODO: проверить существование обоих файлов
             if (!File.Exists(path1) || !File.Exists(path2))
-                throw new FileNotFoundException("Один из входных файлов не найден");
+                throw new FileNotFoundException();
 
-            // TODO: пока возвращаем заглушку
-            return "combined.wav";
+            // TODO: считать содержимое файлов
+            // TODO: объединить звуковые дорожки
+            // TODO: сохранить в новый файл и вернуть путь
+
+            return "combined.wav"; // временная реализация
         }
     }
 }
