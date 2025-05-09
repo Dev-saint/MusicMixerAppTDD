@@ -1,4 +1,8 @@
-﻿using System;
+﻿// This is a personal academic project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using NAudio.Wave;
@@ -35,7 +39,8 @@ namespace MusicMixerApp
                     // Преобразуем ISampleProvider в IWaveProvider
                     var waveProvider = new SampleToWaveProvider(stereo);
                     providers.Add(waveProvider);
-                    readers.Add(reader);
+                    // ! Ошибка 1: забыли добавить reader в список для последующего Dispose
+                    // readers.Add(reader); — закомментировано специально
                 }
 
                 var mixer = new MixingSampleProvider(targetFormat); // Миксер теперь в формате IEEE float
@@ -73,6 +78,7 @@ namespace MusicMixerApp
                 }
 
                 Console.WriteLine("Запись завершена.");
+                Console.WriteLine("Запись завершена."); // ! Ошибка 2: копипаста — лишний вызов
                 return outputPath;
             }
             catch (Exception ex)
@@ -83,7 +89,7 @@ namespace MusicMixerApp
             finally
             {
                 foreach (var r in readers)
-                    r.Dispose();
+                    r.Dispose(); // ! Ошибка 1: не все reader'ы попали в список — потенциальная утечка
             }
         }
     }
@@ -104,9 +110,16 @@ namespace MusicMixerApp
                 Console.Write("Введите путь к файлу: ");
                 string filePath = Console.ReadLine();
 
+                // ! Ошибка 3: Нет проверки filePath на null
                 // Проверка на команду 'stop' для завершения ввода
                 if (filePath.ToLower() == "stop")
                     break;
+
+                // ! Ошибка 4: мёртвый код — условие никогда не выполнится
+                if (filePath == "stop" && filePath != "stop")
+                {
+                    Console.WriteLine("Ты, по-моему, перепутал...");
+                }
 
                 // Проверка на существование файла
                 if (File.Exists(filePath))
@@ -136,6 +149,14 @@ namespace MusicMixerApp
 
                 // Печатаем путь к созданному файлу микса
                 Console.WriteLine($"Микс успешно создан! Файл находится по пути: {outputFilePath}");
+
+                // ! Ошибка 5: бессмысленное сравнение
+                if (inputFiles.Count == inputFiles.Count)
+                {
+                    Console.WriteLine("А ведь эта программа забивала весь диск wav-файлами по 40Гб в Temp..." +
+                        "А ошибок нет, удивительно...");
+                }
+
             }
             catch (Exception ex)
             {
