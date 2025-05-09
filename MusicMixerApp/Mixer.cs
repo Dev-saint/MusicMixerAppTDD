@@ -1,4 +1,6 @@
-﻿namespace MusicMixerApp
+﻿// TODO: подключить библиотеку для работы с WAV-файлами
+
+namespace MusicMixerApp
 {
     public class Mixer
     {
