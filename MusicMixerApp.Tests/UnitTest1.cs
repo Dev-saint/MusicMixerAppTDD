@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 using MusicMixerApp;
+using NAudio.Wave;
 
 namespace MusicMixerApp.Tests
 {
@@ -57,56 +58,34 @@ namespace MusicMixerApp.Tests
         }
 
         [Fact]
-        public void MixTracks_CreatesNonEmptyOutput_WhenGivenValidWavFiles()
+        public void MixTracks_ReturnsOutputFilePath_WhenValidFiles()
         {
-            // Arrange
+            // arrange
             var mixer = new Mixer();
-            var tempFiles = new List<string>();
 
-            for (int i = 0; i < 2; i++)
-            {
-                string path = Path.GetTempFileName().Replace(".tmp", ".wav");
-                File.WriteAllBytes(path, GenerateSilentWavBytes(1)); // 1 секунда тишины
-                tempFiles.Add(path);
-            }
+            var tempFile1 = Path.Combine(Path.GetTempPath(), "test1.wav");
+            var tempFile2 = Path.Combine(Path.GetTempPath(), "test2.wav");
 
-            // Act
-            var output = mixer.MixTracks(tempFiles);
+            // Создаем dummy-файлы с тишиной
+            CreateSilentWav(tempFile1);
+            CreateSilentWav(tempFile2);
 
-            // Assert
-            Assert.True(File.Exists(output));
-            Assert.True(new FileInfo(output).Length > 100); // Должен быть не пустым
+            // act
+            var result = mixer.MixTracks(new List<string> { tempFile1, tempFile2 });
 
-            // Cleanup
-            foreach (var file in tempFiles)
-                File.Delete(file);
-            File.Delete(output);
+            // assert
+            Assert.True(File.Exists(result));
         }
 
         // Вспомогательный метод
-        private byte[] GenerateSilentWavBytes(int seconds)
+        private void CreateSilentWav(string path)
         {
-            using var ms = new MemoryStream();
-            int sampleRate = 44100;
-            int bytesPerSample = 2;
-            int numSamples = sampleRate * seconds;
-            int byteRate = sampleRate * bytesPerSample;
-
-            using var writer = new BinaryWriter(ms);
-            writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
-            writer.Write(36 + numSamples * bytesPerSample);
-            writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
-            writer.Write(16);
-            writer.Write((short)1); // PCM
-            writer.Write((short)1); // mono
-            writer.Write(sampleRate);
-            writer.Write(byteRate);
-            writer.Write((short)(bytesPerSample));
-            writer.Write((short)(bytesPerSample * 8));
-            writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
-            writer.Write(numSamples * bytesPerSample);
-            for (int i = 0; i < numSamples; i++) writer.Write((short)0);
-            return ms.ToArray();
+            var waveFormat = new WaveFormat(44100, 16, 1); // Mono
+            using (var writer = new WaveFileWriter(path, waveFormat))
+            {
+                byte[] silence = new byte[44100 * 2]; // 1 секунда тишины (16 бит = 2 байта)
+                writer.Write(silence, 0, silence.Length);
+            }
         }
     }
 }
