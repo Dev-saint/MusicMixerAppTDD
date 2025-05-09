@@ -13,4 +13,13 @@ public class MixerTests
 
         Assert.NotNull(result);
     }
+
+    [Fact]
+    public void Mix_WithInvalidPaths_ShouldThrowException()
+    {
+        // TODO: обработать несуществующие пути в методе Mix
+        var mixer = new Mixer();
+
+        Assert.Throws<FileNotFoundException>(() => mixer.Mix("nonexistent1.wav", "nonexistent2.wav"));
+    }
 }

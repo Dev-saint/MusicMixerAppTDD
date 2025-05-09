@@ -4,8 +4,12 @@
     {
         public string Mix(string path1, string path2)
         {
-            // TODO: реализовать полноценное объединение мелодий из файлов
-            return "combined.wav"; // временная заглушка
+            // TODO: реализовать проверку существования файлов
+            if (!File.Exists(path1) || !File.Exists(path2))
+                throw new FileNotFoundException("Один из входных файлов не найден");
+
+            // TODO: пока возвращаем заглушку
+            return "combined.wav";
         }
     }
 }
