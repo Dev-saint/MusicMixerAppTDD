@@ -1,25 +1,59 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Xunit;
 using MusicMixerApp;
 
-public class MixerTests
+namespace MusicMixerApp.Tests
 {
-    [Fact]
-    public void MixShouldReturnCombinedMelody()
+    public class MixerTests
     {
-        // TODO: проверить, что метод Mix возвращает не null
-        var mixer = new Mixer();
+        [Fact]
+        public void MixTracks_ReturnsOutputPath_WhenGivenValidFiles()
+        {
+            // Arrange
+            var mixer = new Mixer();
 
-        var result = mixer.Mix("melody1.wav", "melody2.wav");
+            var tempFiles = new List<string>();
+            for (int i = 0; i < 2; i++)
+            {
+                string path = Path.GetTempFileName();
+                File.WriteAllText(path, $"Файл {i}");
+                tempFiles.Add(path);
+            }
 
-        Assert.NotNull(result);
-    }
+            // Act
+            var output = mixer.MixTracks(tempFiles);
 
-    [Fact]
-    public void Mix_WithInvalidPaths_ShouldThrowException()
-    {
-        // TODO: обработать несуществующие пути в методе Mix
-        var mixer = new Mixer();
+            // Assert
+            Assert.True(File.Exists(output));
+            Assert.Contains("mix_stub.wav", Path.GetFileName(output));
 
-        Assert.Throws<FileNotFoundException>(() => mixer.Mix("nonexistent1.wav", "nonexistent2.wav"));
+            // Cleanup
+            foreach (var file in tempFiles)
+                File.Delete(file);
+            File.Delete(output);
+        }
+
+        [Fact]
+        public void MixTracks_ThrowsException_WhenListIsNull()
+        {
+            // Arrange
+            var mixer = new Mixer();
+
+            // Act + Assert
+            Assert.Throws<ArgumentException>(() => mixer.MixTracks(null));
+        }
+
+        [Fact]
+        public void MixTracks_ThrowsException_WhenFileNotFound()
+        {
+            // Arrange
+            var mixer = new Mixer();
+            var files = new List<string> { "non_existent_file.wav" };
+
+            // Act + Assert
+            Assert.Throws<FileNotFoundException>(() => mixer.MixTracks(files));
+        }
     }
 }
