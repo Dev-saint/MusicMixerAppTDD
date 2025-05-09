@@ -1,8 +1,11 @@
-﻿public class Mixer
+﻿namespace MusicMixerApp
 {
-    public string Mix(string path1, string path2)
+    public class Mixer
     {
-        // TODO: реализовать полноценное объединение мелодий из файлов
-        return "combined.wav"; // временная заглушка
+        public string Mix(string path1, string path2)
+        {
+            // TODO: реализовать полноценное объединение мелодий из файлов
+            return "combined.wav"; // временная заглушка
+        }
     }
 }

@@ -1,9 +1,10 @@
 using Xunit;
+using MusicMixerApp;
 
 public class MixerTests
 {
     [Fact]
-    public void Mix_ShouldReturnCombinedMelody()
+    public void MixShouldReturnCombinedMelody()
     {
         // TODO: проверить, что метод Mix возвращает не null
         var mixer = new Mixer();
