@@ -1,30 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 namespace MusicMixerApp
 {
     public class Mixer
     {
-        public string MixTracks(List<string> inputFilePaths)
+        public string MixTracks(List<string> inputFiles)
         {
-            // TODO: в будущем — тут будет реальное смешивание аудио
+            if (inputFiles == null || inputFiles.Count == 0)
+                throw new ArgumentException("Список файлов пуст.");
 
-            // Проверка входных данных
-            if (inputFilePaths == null || inputFilePaths.Count == 0)
-                throw new ArgumentException("Список входных файлов пуст.");
+            var readers = inputFiles.Select(file => new AudioFileReader(file)).ToList();
+            var mixer = new MixingSampleProvider(readers);
+            mixer.ReadFully = true;
 
-            foreach (var file in inputFilePaths)
+            var outputPath = Path.Combine(Path.GetTempPath(), $"mix_{Guid.NewGuid()}.wav");
+
+            using (var fileWriter = new WaveFileWriter(outputPath, mixer.WaveFormat))
             {
-                if (!File.Exists(file))
-                    throw new FileNotFoundException($"Файл не найден: {file}");
+                float[] buffer = new float[1024];
+                int read;
+                while ((read = mixer.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    fileWriter.WriteSamples(buffer, 0, read);
+                }
             }
 
-            // Эмуляция работы
-            string outputPath = Path.Combine(Directory.GetCurrentDirectory(), "mix_stub.wav");
-
-            // Заглушка — создаем пустой файл
-            File.WriteAllText(outputPath, "Эмуляция микса."); // можно заменить на byte[] позже
+            // Освобождаем ресурсы
+            foreach (var reader in readers)
+            {
+                reader.Dispose();
+            }
 
             return outputPath;
         }
