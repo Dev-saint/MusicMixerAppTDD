@@ -40,7 +40,7 @@ namespace MusicMixerApp
                     var waveProvider = new SampleToWaveProvider(stereo);
                     providers.Add(waveProvider);
                     // ! Ошибка 1: забыли добавить reader в список для последующего Dispose
-                    // readers.Add(reader); — закомментировано специально
+                    readers.Add(reader);
                 }
 
                 var mixer = new MixingSampleProvider(targetFormat); // Миксер теперь в формате IEEE float
@@ -116,10 +116,10 @@ namespace MusicMixerApp
                     break;
 
                 // ! Ошибка 4: мёртвый код — условие никогда не выполнится
-                if (filePath == "stop" && filePath != "stop")
-                {
-                    Console.WriteLine("Ты, по-моему, перепутал...");
-                }
+                //if (filePath == "stop" && filePath != "stop")
+                //{
+                //    Console.WriteLine("Ты, по-моему, перепутал...");
+                //}
 
                 // Проверка на существование файла
                 if (File.Exists(filePath))
@@ -151,11 +151,11 @@ namespace MusicMixerApp
                 Console.WriteLine($"Микс успешно создан! Файл находится по пути: {outputFilePath}");
 
                 // ! Ошибка 5: бессмысленное сравнение
-                if (inputFiles.Count == inputFiles.Count)
-                {
-                    Console.WriteLine("А ведь эта программа забивала весь диск wav-файлами по 40Гб в Temp..." +
-                        "А ошибок нет, удивительно...");
-                }
+                //if (inputFiles.Count == inputFiles.Count)
+                //{
+                //    Console.WriteLine("А ведь эта программа забивала весь диск wav-файлами по 40Гб в Temp..." +
+                //        "А ошибок нет, удивительно...");
+                //}
 
             }
             catch (Exception ex)
